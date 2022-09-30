@@ -43,7 +43,7 @@ class App extends React.Component {
             listKeyPairMarkedForDeletion : null,
             currentList : null,
             sessionData : loadedSessionData,
-            modalopen: false,
+            modalopen : false
         }
     }
 
@@ -180,31 +180,28 @@ class App extends React.Component {
 
         let modal = document.getElementById("edit-song-modal");
         modal.classList.add("is-visible");
+        this.setState({
+            modalopen : true
+        })
     }
 
     hideEditSongModalCallback = () => {
         let modal = document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
+        this.setState({
+            modalopen : false
+        })
     }
 
-    editSongCallback = (index) => {
-        var theTitle = document.getElementById("titleText").value;
-        var theArtist = document.getElementById("artistText").value;
-        var theYoutubeID = document.getElementById("youtubeId").value;
-
-        let newElement = {
-            artist: theArtist,
-            title: theTitle,
-            youTubeId: theYoutubeID,
-        }
-
-        this.state.currentList.songs[this.state.indexForDelete] = newElement;
-        //this.setState(this.state.currentList)
-        this.setStateWithUpdatedList(this.state.currentList);
-        //this.setStateWithUpdatedList()
-        let modal = document.getElementById("edit-song-modal");
-        modal.classList.remove("is-visible");
-    }
+    // editSongCallback = (index) => {
+ 
+    //     //this.setState(this.state.currentList)
+    //     this.setStateWithUpdatedList(this.state.currentList);
+    //     //this.setStateWithUpdatedList()
+    //     let modal = document.getElementById("edit-song-modal");
+    //     modal.classList.remove("is-visible");
+    //     return oldElement
+    // }
 
     deleteLastElement = (songToDelete) => {
         this.state.currentList.songs.splice(songToDelete,1);
@@ -213,8 +210,11 @@ class App extends React.Component {
 
 
     replaceBack = (index, oldElement) => {
+
+        this.hideEditSongModalCallback()
         this.state.currentList.songs[index] = oldElement; //replaces the element there
         this.setStateWithUpdatedList(this.state.currentList);
+        
     }
 
     markSongForDelete = (num) => {
@@ -223,19 +223,21 @@ class App extends React.Component {
             currentList: prevState.currentList, //gets previous playlist
             indexForDelete : num, //sets the number here
             sessionData: prevState.sessionData, //gets previous sessionData
-            modalopen: true, //testing
         }))
         document.getElementById("songName").innerHTML = this.state.currentList.songs[num].title
         let modal = document.getElementById("delete-song-modal");
         modal.classList.add("is-visible");    
+        this.setState({
+            modalopen : true
+        })
     }
 
     hideDeleteSongModal = () => {
         let modal = document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
-        this.setState(prevState => ({
-            modalopen: false, //testing
-        }))
+        this.setState({
+            modalopen : false
+        })
     }
 
     deleteMarkedSong = (index) => {
@@ -245,9 +247,9 @@ class App extends React.Component {
         this.setStateWithUpdatedList(this.state.currentList);
         let modal = document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
-        this.setState(prevState => ({
-            modalopen: false, //testing
-        }))
+        this.setState({
+            modalopen : false
+        })
     }
 
     insertElementIn = (index, element) => {
@@ -388,9 +390,18 @@ class App extends React.Component {
     }
 
      editSongTransaction = () => {
+        var theTitle = document.getElementById("titleText").value;
+        var theArtist = document.getElementById("artistText").value;
+        var theYoutubeID = document.getElementById("youtubeId").value;
+
+        let newElement = {
+            artist: theArtist,
+            title: theTitle,
+            youTubeId: theYoutubeID,
+        }
          let index = this.state.indexForDelete;
-         let oldElement = this.state.currentList.songs[index]; //replaces the element there
-         let newEdittransaction = new EditSong_Transaction(this, index, oldElement);
+         let oldElement = this.state.currentList.songs[index]
+         let newEdittransaction = new EditSong_Transaction(this, index, newElement, oldElement)
          this.tps.addTransaction(newEdittransaction);
     }
 
@@ -427,18 +438,25 @@ class App extends React.Component {
     showDeleteListModal() {
         let modal = document.getElementById("delete-list-modal");
         modal.classList.add("is-visible");
+        this.setState({
+            modalopen : true
+        })
     }
     // THIS FUNCTION IS FOR HIDING THE MODAL
     hideDeleteListModal() {
         let modal = document.getElementById("delete-list-modal");
         modal.classList.remove("is-visible");
+        this.setState({
+            modalopen : false
+        })
     }
     render() {
-        let canAddSong = (this.state.currentList !== null);
-        let canUndo = this.tps.hasTransactionToUndo();
-        let canRedo = this.tps.hasTransactionToRedo();
-        let canClose = this.state.currentList !== null;
-        let canDoThis = this.state.currentList == null;
+        let canAddSong = (this.state.currentList !== null && this.state.modalopen == false);
+        let canUndo = this.tps.hasTransactionToUndo() && this.state.modalopen == false;
+        let canRedo = this.tps.hasTransactionToRedo() && this.state.modalopen == false;
+        let canClose = this.state.currentList !== null && this.state.modalopen == false;
+
+        let canDoThis = this.state.currentList == null && this.state.modalopen == true;
         return (
             <div id="root">
                 <Banner />

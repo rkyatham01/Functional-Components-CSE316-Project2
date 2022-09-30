@@ -9,19 +9,20 @@ import jsTPS_Transaction from "../common/jsTPS.js"
  * @author ?
  */
 export default class EditSong_Transaction extends jsTPS_Transaction {
-    constructor(initApp, index, oldelement) {
+    constructor(initApp, index, newElement, oldElement) {
         super();
         this.app = initApp;
-        this.delindex = index;
-        this.oldelement = oldelement;
+        this.Index = index;
+        this.newElement = newElement;
+        this.oldElement = oldElement;
     }
     
     doTransaction() {
-        this.app.editSongCallback(this.delindex); //replacing with new element
+        this.app.replaceBack(this.Index, this.newElement); //replacing with new element
     }
         
     undoTransaction() {
-        this.app.replaceBack(this.delindex, this.oldelement);  //replacing with old element back
+        this.app.replaceBack(this.Index, this.oldElement);  //replacing with old element back
     }
     
 }

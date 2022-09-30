@@ -276,7 +276,7 @@ span {
 .modal-south {
   display:flex;
   flex-direction: row;
-  background-color: --swatch-complement;
+  background-color: lightgray;
   align-items: center;
   justify-content: center;
 }

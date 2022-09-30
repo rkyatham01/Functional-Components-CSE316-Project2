@@ -66,11 +66,15 @@ class App extends React.Component {
     }
 
     markSongForEdit = (num) => {
+
         this.setState(prevState => ({
             currentList: prevState.currentList, //gets previous playlist
             indexForDelete : num, //sets the number here
             sessionData: prevState.sessionData //gets previous sessionData
         }))
+        document.getElementById("titleText").value = this.state.currentList.songs[num].title;
+        document.getElementById("artistText").value = this.state.currentList.songs[num].artist
+        document.getElementById("youtubeId").value = this.state.currentList.songs[num].youTubeId
 
         let modal = document.getElementById("edit-song-modal");
         modal.classList.add("is-visible");

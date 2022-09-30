@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 
 export default class EditSongModal extends Component {
     render() {
-        const { index, editListCallback, hideditModalCallback } = this.props;
+        const { index, editListCallback, hideditModalCallback} = this.props;
+
         let name = "";
         // if (listKeyPair) {
         //     name = listKeyPair.name;

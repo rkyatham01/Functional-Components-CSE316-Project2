@@ -19,14 +19,9 @@ export default class EditSongModal extends Component {
                         </div>
 
                         <div class="modal-center">
-                            <div class="modal-center-content">
                                 Title: <input id="titleText" placeholder="Enter Title"/>
-                                <br/>
                                 Artist: <input id="artistText" placeholder="Enter Artist"/>
-                                <br/>
                                 YouTube Id: <input id="youtubeId" placeholder="Enter Youtube Id"/>
-                                <br/>
-                            </div>
                         </div>
 
                         <div class="modal-south">

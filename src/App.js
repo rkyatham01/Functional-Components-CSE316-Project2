@@ -42,9 +42,93 @@ class App extends React.Component {
         this.state = {
             listKeyPairMarkedForDeletion : null,
             currentList : null,
-            sessionData : loadedSessionData
+            sessionData : loadedSessionData,
+            modalopen: false,
         }
     }
+
+        // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
+    closeCurrentList = () => {
+        this.tps.clearAllTransactions();
+
+        this.setState(prevState => ({
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            currentList: null,
+            sessionData: this.state.sessionData
+        }), () => {
+            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
+            // THE TRANSACTION STACK IS CLEARED
+        });
+    }
+
+    // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
+    loadList = (key) => {
+        this.tps.clearAllTransactions();
+        let newCurrentList = this.db.queryGetList(key);
+        this.setState(prevState => ({
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            currentList: newCurrentList,
+            sessionData: this.state.sessionData
+        }), () => {
+            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
+            // THE TRANSACTION STACK IS CLEARED
+        });
+    }
+
+            // THIS FUNCTION SPECIFICALLY DELETES THE CURRENT LIST
+    deleteCurrentList = () => {
+        this.tps.clearAllTransactions();
+
+        if (this.state.currentList) {
+            this.deleteList(this.state.currentList.key);
+        }
+        //added
+    }
+
+        // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
+        createNewList = () => {
+            // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
+            this.tps.clearAllTransactions();
+            let newKey = this.state.sessionData.nextKey;
+            let newName = "Untitled" + newKey;
+    
+            // MAKE THE NEW LIST
+            let newList = {
+                key: newKey,
+                name: newName,
+                songs: []
+            };
+    
+            // MAKE THE KEY,NAME OBJECT SO WE CAN KEEP IT IN OUR
+            // SESSION DATA SO IT WILL BE IN OUR LIST OF LISTS
+            let newKeyNamePair = { "key": newKey, "name": newName };
+            let updatedPairs = [...this.state.sessionData.keyNamePairs, newKeyNamePair];
+            this.sortKeyNamePairsByName(updatedPairs);
+    
+            // CHANGE THE APP STATE SO THAT THE CURRENT LIST IS
+            // THIS NEW LIST AND UPDATE THE SESSION DATA SO THAT THE
+            // NEXT LIST CAN BE MADE AS WELL. NOTE, THIS setState WILL
+            // FORCE A CALL TO render, BUT THIS UPDATE IS ASYNCHRONOUS,
+            // SO ANY AFTER EFFECTS THAT NEED TO USE THIS UPDATED STATE
+            // SHOULD BE DONE VIA ITS CALLBACK
+            this.setState(prevState => ({
+                listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+                currentList: newList,
+                sessionData: {
+                    nextKey: prevState.sessionData.nextKey + 1,
+                    counter: prevState.sessionData.counter + 1,
+                    keyNamePairs: updatedPairs
+                }
+            }), () => {
+                // PUTTING THIS NEW LIST IN PERMANENT STORAGE
+                // IS AN AFTER EFFECT
+                this.db.mutationCreateList(newList);
+                // SO IS STORING OUR SESSION DATA
+                this.db.mutationUpdateSessionData(this.state.sessionData);
+
+            });
+        }
+
     sortKeyNamePairsByName = (keyNamePairs) => {
         keyNamePairs.sort((keyPair1, keyPair2) => {
             // GET THE LISTS
@@ -124,9 +208,10 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: prevState.currentList, //gets previous playlist
             indexForDelete : num, //sets the number here
-            sessionData: prevState.sessionData //gets previous sessionData
+            sessionData: prevState.sessionData, //gets previous sessionData
+            modalopen: true, //testing
         }))
-
+        document.getElementById("songName").innerHTML = this.state.currentList.songs[num].title
         let modal = document.getElementById("delete-song-modal");
         modal.classList.add("is-visible");    
     }
@@ -134,6 +219,9 @@ class App extends React.Component {
     hideDeleteSongModal = () => {
         let modal = document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
+        this.setState(prevState => ({
+            modalopen: false, //testing
+        }))
     }
 
     deleteMarkedSong = (index) => {
@@ -143,6 +231,9 @@ class App extends React.Component {
         this.setStateWithUpdatedList(this.state.currentList);
         let modal = document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
+        this.setState(prevState => ({
+            modalopen: false, //testing
+        }))
     }
 
     insertElementIn = (index, element) => {
@@ -150,48 +241,6 @@ class App extends React.Component {
         this.setStateWithUpdatedList(this.state.currentList);
     }
 
-    // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
-    createNewList = () => {
-        // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
-        let newKey = this.state.sessionData.nextKey;
-        let newName = "Untitled" + newKey;
-
-        // MAKE THE NEW LIST
-        let newList = {
-            key: newKey,
-            name: newName,
-            songs: []
-        };
-
-        // MAKE THE KEY,NAME OBJECT SO WE CAN KEEP IT IN OUR
-        // SESSION DATA SO IT WILL BE IN OUR LIST OF LISTS
-        let newKeyNamePair = { "key": newKey, "name": newName };
-        let updatedPairs = [...this.state.sessionData.keyNamePairs, newKeyNamePair];
-        this.sortKeyNamePairsByName(updatedPairs);
-
-        // CHANGE THE APP STATE SO THAT THE CURRENT LIST IS
-        // THIS NEW LIST AND UPDATE THE SESSION DATA SO THAT THE
-        // NEXT LIST CAN BE MADE AS WELL. NOTE, THIS setState WILL
-        // FORCE A CALL TO render, BUT THIS UPDATE IS ASYNCHRONOUS,
-        // SO ANY AFTER EFFECTS THAT NEED TO USE THIS UPDATED STATE
-        // SHOULD BE DONE VIA ITS CALLBACK
-        this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            currentList: newList,
-            sessionData: {
-                nextKey: prevState.sessionData.nextKey + 1,
-                counter: prevState.sessionData.counter + 1,
-                keyNamePairs: updatedPairs
-            }
-        }), () => {
-            // PUTTING THIS NEW LIST IN PERMANENT STORAGE
-            // IS AN AFTER EFFECT
-            this.db.mutationCreateList(newList);
-
-            // SO IS STORING OUR SESSION DATA
-            this.db.mutationUpdateSessionData(this.state.sessionData);
-        });
-    }
     // THIS FUNCTION BEGINS THE PROCESS OF DELETING A LIST.
     deleteList = (key) => {
         // IF IT IS THE CURRENT LIST, CHANGE THAT
@@ -233,12 +282,7 @@ class App extends React.Component {
         this.deleteList(this.state.listKeyPairMarkedForDeletion.key);
         this.hideDeleteListModal();
     }
-    // THIS FUNCTION SPECIFICALLY DELETES THE CURRENT LIST
-    deleteCurrentList = () => {
-        if (this.state.currentList) {
-            this.deleteList(this.state.currentList.key);
-        }
-    }
+
     renameList = (key, newName) => {
         let newKeyNamePairs = [...this.state.sessionData.keyNamePairs];
         // NOW GO THROUGH THE ARRAY AND FIND THE ONE TO RENAME
@@ -272,31 +316,7 @@ class App extends React.Component {
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
     }
-    // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
-    loadList = (key) => {
-        let newCurrentList = this.db.queryGetList(key);
-        this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            currentList: newCurrentList,
-            sessionData: this.state.sessionData
-        }), () => {
-            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
-            // THE TRANSACTION STACK IS CLEARED
-            this.tps.clearAllTransactions();
-        });
-    }
-    // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
-    closeCurrentList = () => {
-        this.setState(prevState => ({
-            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            currentList: null,
-            sessionData: this.state.sessionData
-        }), () => {
-            // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
-            // THE TRANSACTION STACK IS CLEARED
-            this.tps.clearAllTransactions();
-        });
-    }
+
     setStateWithUpdatedList(list) {
         this.setState(prevState => ({
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
@@ -400,15 +420,17 @@ class App extends React.Component {
         modal.classList.remove("is-visible");
     }
     render() {
-        let canAddSong = this.state.currentList !== null;
+        let canAddSong = (this.state.currentList !== null);
         let canUndo = this.tps.hasTransactionToUndo();
         let canRedo = this.tps.hasTransactionToRedo();
         let canClose = this.state.currentList !== null;
+        let canDoThis = this.state.currentList == null;
         return (
             <div id="root">
                 <Banner />
                 <SidebarHeading
                     createNewListCallback={this.createNewList}
+                    canAddThisSong = {canDoThis}
                 />
                 <SidebarList
                     currentList={this.state.currentList}
@@ -439,7 +461,7 @@ class App extends React.Component {
                     currentList={this.state.currentList} />
 
                 <DeleteListModal
-                    listKeyPair={this.state.indexForDelete}
+                    listKeyPair={this.state.listKeyPairMarkedForDeletion}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                     deleteListCallback={this.deleteMarkedList}
                 />

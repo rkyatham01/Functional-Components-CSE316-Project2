@@ -67,6 +67,20 @@ body {
   background-color: var(--swatch-primary);
 }
 
+.toolbar-button {
+  font-size:26pt;
+  border-width: 1px;
+  border-color: black;
+  border-style: solid;
+  box-shadow: 2px 4px #888888;
+  border-radius: 5px;
+}
+
+.toolbar-button-disabled {
+  opacity: 0.25; 
+  cursor: not-allowed;
+}
+
 #sidebar-list {
   grid-column: 1 / 2;
   grid-row: 3 / 4;
@@ -240,7 +254,7 @@ input {
 }
 
 .modal-north {
-  font-size:32pt;
+  font-size:28pt;
   font-weight: bold;
   background-color: #669966;
   color:white;
@@ -251,7 +265,7 @@ input {
   grid-template-columns: 30% 65%;
   grid-template-rows: 33% 33% 33%;
   gap: 10px 20px;
-  font-size: 48pt;
+  font-size: 25pt;
 }
 
 span {
@@ -262,7 +276,7 @@ span {
 .modal-south {
   display:flex;
   flex-direction: row;
-  background-color: lightgray;
+  background-color: --swatch-complement;
   align-items: center;
   justify-content: center;
 }

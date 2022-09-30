@@ -21,6 +21,9 @@ import Statusbar from './components/Statusbar.js';
 import SongCard from './components/SongCard';
 import DeleteSongModal from './components/DeleteSongModal'
 import EditSongModal from './components/EditSongModal'
+import AddSong_Transaction from './transactions/AddSong_Transaction';
+import DeleteSong_Transaction from './transactions/DeleteSong_Transaction';
+import EditSong_Transaction from './transactions/EditSong_Transaction';
 
 class App extends React.Component {
     constructor(props) {
@@ -62,7 +65,8 @@ class App extends React.Component {
         }
 
         this.state.currentList.songs.push(newElement)
-        this.setState(this.state.currentList)
+        this.setStateWithUpdatedList(this.state.currentList);
+     //   this.setState(this.state.currentList)
     }
 
     markSongForEdit = (num) => {
@@ -85,7 +89,7 @@ class App extends React.Component {
         modal.classList.remove("is-visible");
     }
 
-    editSongCallback = () => {
+    editSongCallback = (index) => {
         var theTitle = document.getElementById("titleText").value;
         var theArtist = document.getElementById("artistText").value;
         var theYoutubeID = document.getElementById("youtubeId").value;
@@ -97,10 +101,22 @@ class App extends React.Component {
         }
 
         this.state.currentList.songs[this.state.indexForDelete] = newElement;
-        this.setState(this.state.currentList)
+        //this.setState(this.state.currentList)
+        this.setStateWithUpdatedList(this.state.currentList);
         //this.setStateWithUpdatedList()
         let modal = document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
+    }
+
+    deleteLastElement = (songToDelete) => {
+        this.state.currentList.songs.splice(songToDelete,1);
+        this.setStateWithUpdatedList(this.state.currentList);
+    }
+
+
+    replaceBack = (index, oldElement) => {
+        this.state.currentList.songs[index] = oldElement; //replaces the element there
+        this.setStateWithUpdatedList(this.state.currentList);
     }
 
     markSongForDelete = (num) => {
@@ -120,13 +136,18 @@ class App extends React.Component {
         modal.classList.remove("is-visible");
     }
 
-    deleteMarkedSong = () => {
+    deleteMarkedSong = (index) => {
 
         (this.state.currentList.songs).splice(this.state.indexForDelete,1)
-        this.setState(this.state.currentList)
+        //this.setState(this.state.currentList)
+        this.setStateWithUpdatedList(this.state.currentList);
         let modal = document.getElementById("delete-song-modal");
         modal.classList.remove("is-visible");
-        return 
+    }
+
+    insertElementIn = (index, element) => {
+        this.state.currentList.songs.splice(index,0,element);
+        this.setStateWithUpdatedList(this.state.currentList);
     }
 
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
@@ -319,6 +340,26 @@ class App extends React.Component {
         let transaction = new MoveSong_Transaction(this, start, end);
         this.tps.addTransaction(transaction);
     }
+    //Done my me Below
+    addSongTransaction = () => {
+        let newaddtransaction = new AddSong_Transaction(this);
+        this.tps.addTransaction(newaddtransaction);
+    }
+
+    deleteSongTransaction = () => {
+        let index = this.state.indexForDelete;
+        let newElement = this.state.currentList.songs[index]; //replaces the element there
+        let newDeltransaction = new DeleteSong_Transaction(this, index, newElement);
+        this.tps.addTransaction(newDeltransaction);
+    }
+
+     editSongTransaction = () => {
+         let index = this.state.indexForDelete;
+         let oldElement = this.state.currentList.songs[index]; //replaces the element there
+         let newEdittransaction = new EditSong_Transaction(this, index, oldElement);
+         this.tps.addTransaction(newEdittransaction);
+    }
+
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -384,7 +425,7 @@ class App extends React.Component {
                     undoCallback={this.undo}
                     redoCallback={this.redo}
                     closeCallback={this.closeCurrentList}
-                    createNewSongCallback={this.addNewSong}
+                    createNewSongCallback={this.addSongTransaction}
 
                 />
                 <PlaylistCards
@@ -406,12 +447,12 @@ class App extends React.Component {
                 <DeleteSongModal
                     listKeyPair={this.state.index} //sends index
                     hideDeleteSongModalCallback={this.hideDeleteSongModal}
-                    deleteSongCallback={this.deleteMarkedSong}
+                    deleteSongCallback={this.deleteSongTransaction}
                 />
 
                 <EditSongModal
                     hideditModalCallback = {this.hideEditSongModalCallback}
-                    editListCallback = {this.editSongCallback}
+                    editListCallback = {this.editSongTransaction}
                 />
 
             </div>

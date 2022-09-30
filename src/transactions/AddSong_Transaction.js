@@ -1,4 +1,4 @@
-import jsTPS_Transaction from "../../common/jsTPS.js"
+import jsTPS_Transaction from "../common/jsTPS.js"
 /**
  * AddSong_Transaction
  * 
@@ -9,17 +9,18 @@ import jsTPS_Transaction from "../../common/jsTPS.js"
  * @author ?
  */
 export default class AddSong_Transaction extends jsTPS_Transaction {
-    constructor(initModel) {
+    constructor(initApp) {
         super();
-        this.model = initModel;
+        this.app = initApp;
     }
 
     doTransaction() {
-        this.model.addNewSong();
+        this.app.addNewSong();
     }
     
     undoTransaction() {
-        this.model.functionToDelete(-1);
+        this.app.deleteLastElement(-1);        
     }
+
 
 }

@@ -47,6 +47,20 @@ class App extends React.Component {
         }
     }
 
+    componentDidMount(){
+        document.addEventListener("keydown", (keyDownFunc) => {
+            if (keyDownFunc.ctrlKey && keyDownFunc.key === 'z'){
+                this.undo();
+                this.setStateWithUpdatedList(this.state.currentList);                
+            }
+
+            if (keyDownFunc.ctrlKey && keyDownFunc.key === 'y'){
+                this.redo();
+                this.setStateWithUpdatedList(this.state.currentList);
+            } 
+        })
+    }
+
         // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
     closeCurrentList = () => {
         this.tps.clearAllTransactions();

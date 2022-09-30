@@ -18,6 +18,9 @@ import PlaylistCards from './components/PlaylistCards.js';
 import SidebarHeading from './components/SidebarHeading.js';
 import SidebarList from './components/SidebarList.js';
 import Statusbar from './components/Statusbar.js';
+import SongCard from './components/SongCard';
+import DeleteSongModal from './components/DeleteSongModal'
+import EditSongModal from './components/EditSongModal'
 
 class App extends React.Component {
     constructor(props) {
@@ -45,6 +48,83 @@ class App extends React.Component {
             return keyPair1.name.localeCompare(keyPair2.name);
         });
     }
+
+        // THESE ARE THE FUNCTIONS FOR ADDING THE SONGS IN THE CURRENT LIST (Rish)
+    addNewSong = () => {
+        if (this.state.currentList == null){
+            return this.state.currentList !== null; //returns nothing
+        }
+
+        let newElement = {
+            artist: "Unknown",
+            title: "Untitled",
+            youTubeId: "dQw4w9WgXcQ",
+        }
+
+        this.state.currentList.songs.push(newElement)
+        this.setState(this.state.currentList)
+    }
+
+    markSongForEdit = (num) => {
+        this.setState(prevState => ({
+            currentList: prevState.currentList, //gets previous playlist
+            indexForDelete : num, //sets the number here
+            sessionData: prevState.sessionData //gets previous sessionData
+        }))
+
+        let modal = document.getElementById("edit-song-modal");
+        modal.classList.add("is-visible");
+    }
+
+    hideEditSongModalCallback = () => {
+        let modal = document.getElementById("edit-song-modal");
+        modal.classList.remove("is-visible");
+    }
+
+    editSongCallback = () => {
+        var theTitle = document.getElementById("titleText").value;
+        var theArtist = document.getElementById("artistText").value;
+        var theYoutubeID = document.getElementById("youtubeId").value;
+
+        let newElement = {
+            artist: theArtist,
+            title: theTitle,
+            youTubeId: theYoutubeID,
+        }
+
+        this.state.currentList.songs[this.state.indexForDelete] = newElement;
+        this.setState(this.state.currentList)
+        //this.setStateWithUpdatedList()
+        let modal = document.getElementById("edit-song-modal");
+        modal.classList.remove("is-visible");
+    }
+
+    markSongForDelete = (num) => {
+
+        this.setState(prevState => ({
+            currentList: prevState.currentList, //gets previous playlist
+            indexForDelete : num, //sets the number here
+            sessionData: prevState.sessionData //gets previous sessionData
+        }))
+
+        let modal = document.getElementById("delete-song-modal");
+        modal.classList.add("is-visible");    
+    }
+
+    hideDeleteSongModal = () => {
+        let modal = document.getElementById("delete-song-modal");
+        modal.classList.remove("is-visible");
+    }
+
+    deleteMarkedSong = () => {
+
+        (this.state.currentList.songs).splice(this.state.indexForDelete,1)
+        this.setState(this.state.currentList)
+        let modal = document.getElementById("delete-song-modal");
+        modal.classList.remove("is-visible");
+        return 
+    }
+
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
     createNewList = () => {
         // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
@@ -300,17 +380,36 @@ class App extends React.Component {
                     undoCallback={this.undo}
                     redoCallback={this.redo}
                     closeCallback={this.closeCurrentList}
+                    createNewSongCallback={this.addNewSong}
+
                 />
                 <PlaylistCards
                     currentList={this.state.currentList}
-                    moveSongCallback={this.addMoveSongTransaction} />
+                    moveSongCallback={this.addMoveSongTransaction} 
+                    markSongCallback = {this.markSongForDelete}
+                    markSongForEdits = {this.markSongForEdit}
+                />
+
                 <Statusbar 
                     currentList={this.state.currentList} />
+
                 <DeleteListModal
-                    listKeyPair={this.state.listKeyPairMarkedForDeletion}
+                    listKeyPair={this.state.indexForDelete}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                     deleteListCallback={this.deleteMarkedList}
                 />
+
+                <DeleteSongModal
+                    listKeyPair={this.state.index} //sends index
+                    hideDeleteSongModalCallback={this.hideDeleteSongModal}
+                    deleteSongCallback={this.deleteMarkedSong}
+                />
+
+                <EditSongModal
+                    hideditModalCallback = {this.hideEditSongModalCallback}
+                    editListCallback = {this.editSongCallback}
+                />
+
             </div>
         );
     }

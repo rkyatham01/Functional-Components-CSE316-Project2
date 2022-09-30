@@ -19,7 +19,7 @@ body {
 
 #root {
   background-color: var(--swatch-primary);
-  font-family: serif;
+  font-family: 'Tangerine', serif;
   position: absolute;
   width: 80%;
   left: 10%;
@@ -47,7 +47,7 @@ body {
   background-image: linear-gradient(to bottom,         
   #b8b808, #636723);
   color: white;
-  font-size: 54pt;
+  font-size: 35pt;
   border-color: black;
   border-width: 2px;
   border-style: solid;
@@ -58,7 +58,7 @@ body {
   grid-column: 1 / 2;
   grid-row: 2 / 3;
   text-align:center;
-  font-size: 36pt;
+  font-size: 28pt;
   font-weight: bold;
   display:flex;
   flex-direction: row;
@@ -100,7 +100,7 @@ body {
   background-color: #FFA07A;
   color: black;
   text-align: center;
-  font-size: 38pt;
+  font-size: 35pt;
   padding-top: 4px;
 }
 
@@ -109,10 +109,17 @@ body {
 }
 
 .list-card, .selected-list-card, .unselected-list-card {
-  font-size: 18pt;
+  font-size: 26pt;
   margin: 10px;
   padding: 20px;
   border-radius: 25px;
+}
+
+/*added this */
+.list-card:hover, .selected-list-card:hover{
+  cursor: pointer;
+  background-color: var(--swatch-contrast);
+  color:white;
 }
 
 .unselected-list-card:hover {
@@ -132,15 +139,22 @@ body {
 
 .list-card-button {
   float:right;
-  font-size:18pt;
+  font-size:24pt;
+}
+
+/* added this */
+.is-dragging {
+  border: 2px black solid;
+  opacity: 0.5;
 }
 
 .playlister-button, .playlister-button-disabled {
   font-size:36pt;
-  border-width: 0px;
-  float:left;
-  color: black;
-  cursor: pointer;
+  border-width: 1px;
+  border-color: black;
+  border-style: solid;
+  box-shadow: 2px 4px #888888;
+  border-radius: 5px;
 }
 
 .playlister-button:hover {
@@ -153,17 +167,30 @@ body {
   cursor: not-allowed;
 }
 
+
+/* added all this below */
 .playlister-song, .playlister-song-dragged-to { 
-  display:flex;
   align-items: center;
-  font-size: 24pt;
+  font-size: 28pt;
   height:20%;
+  margin: 7px;
+  padding: 10px;
+  border-radius: 13px;
+  background-color: var(--swatch-complement);
 }
+
+.playlister-song:hover {
+  cursor: pointer;
+  color:black;
+  background-color: black;
+  color: white;
+}
+
+/* till here */
 
 input {
   font-size:20pt;
 }
-
 
 /* THIS STYLE SHEET MANAGES STYLE FOR OUR MODAL, i.e. DIALOG BOX */
 
@@ -187,6 +214,10 @@ input {
 .modal.is-visible {
   visibility: visible;
   opacity: 1;
+}
+
+.removeSong{
+  float: right;
 }
 
 .modal-root {

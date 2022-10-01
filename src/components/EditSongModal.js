@@ -10,29 +10,29 @@ export default class EditSongModal extends Component {
         // }
         return (
             <div 
-                class="modal" 
+            className="modal" 
                 id="edit-song-modal" 
                 data-animation="slideInOutLeft">
-                    <div class="modal-root" id='verify-edit-song-root'>
-                        <div class="modal-north">
+                    <div className="modal-root" id='verify-edit-song-root'>
+                        <div className="modal-north">
                             Edit Song
                         </div>
 
-                        <div class="modal-center">
+                        <div className="modal-center">
                                 Title: <input id="titleText" placeholder="Enter Title"/>
                                 Artist: <input id="artistText" placeholder="Enter Artist"/>
                                 YouTube Id: <input id="youtubeId" placeholder="Enter Youtube Id"/>
                         </div>
 
-                        <div class="modal-south">
+                        <div className="modal-south">
                             <input type="button" 
                                 id="edit-song-confirm-button" 
-                                class="modal-button" 
+                                className="modal-button" 
                                 onClick={editListCallback}
                                 value='Confirm' />
                             <input type="button" 
                                 id="edit-song-cancel-button" 
-                                class="modal-button" 
+                                className="modal-button" 
                                 onClick={hideditModalCallback}
                                 value='Cancel' />
                         </div>

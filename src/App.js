@@ -49,14 +49,17 @@ class App extends React.Component {
 
     componentDidMount(){
         document.addEventListener("keydown", (keyDownFunc) => {
-            if (keyDownFunc.ctrlKey && keyDownFunc.key === 'z'){
-                this.undo();
-                this.setStateWithUpdatedList(this.state.currentList);                
-            }
 
-            if (keyDownFunc.ctrlKey && keyDownFunc.key === 'y'){
-                this.redo();
-                this.setStateWithUpdatedList(this.state.currentList);
+            if(this.state.modalopen == false && this.state.currentList !== null){
+                if (keyDownFunc.ctrlKey && (keyDownFunc.key === 'z'  || keyDownFunc.key == 'Z')){
+                    this.undo();
+                    this.setStateWithUpdatedList(this.state.currentList);                
+                }
+
+                if (keyDownFunc.ctrlKey && (keyDownFunc.key === 'y' || keyDownFunc.key == 'Y')){
+                    this.redo();
+                    this.setStateWithUpdatedList(this.state.currentList);
+                }
             } 
         })
     }
@@ -266,6 +269,8 @@ class App extends React.Component {
                 // THIS JUST MEANS IT'S NOT THE CURRENT LIST BEING
                 // DELETED SO WE'LL KEEP THE CURRENT LIST AS IT IS
                 newCurrentList = this.state.currentList;
+            }else{
+                this.tps.clearAllTransactions();
             }
         }
 
@@ -289,7 +294,7 @@ class App extends React.Component {
             // DELETING THE LIST FROM PERMANENT STORAGE
             // IS AN AFTER EFFECT
             this.db.mutationDeleteList(key);
-
+            
             // SO IS STORING OUR SESSION DATA
             this.db.mutationUpdateSessionData(this.state.sessionData);
         });
@@ -456,9 +461,9 @@ class App extends React.Component {
         let canRedo = this.tps.hasTransactionToRedo() && this.state.modalopen == false;
         let canClose = this.state.currentList !== null && this.state.modalopen == false;
 
-        let canDoThis = this.state.currentList == null && this.state.modalopen == true;
+        let canDoThis = this.state.currentList == null && this.state.modalopen == false;
         return (
-            <div id="root">
+                <>
                 <Banner />
                 <SidebarHeading
                     createNewListCallback={this.createNewList}
@@ -509,7 +514,7 @@ class App extends React.Component {
                     editListCallback = {this.editSongTransaction}
                 />
 
-            </div>
+            </>
         );
     }
 }
